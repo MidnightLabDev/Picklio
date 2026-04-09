@@ -27,10 +27,7 @@ The goal was simple, make answering from text, screenshots, and multiple choice 
 4- Highlight text or use Quick Snap.
 
 5- Right click and choose what you need:
-Get Answer
-Hint
-Explain
-OCR
+Get Answer - Hint - Explain - OCR
 
 Picklio is especially useful when the question is not easy to copy, when the text sits inside an image, or when you want more than just the final answer.
 
