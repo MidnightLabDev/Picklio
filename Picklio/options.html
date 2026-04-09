@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Picklio Settings</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0;
+        padding: 20px;
+        max-width: 500px;
+      }
+      h1 {
+        font-size: 20px;
+        margin-bottom: 16px;
+      }
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+      }
+      input[type="text"],
+      select {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      button {
+        padding: 8px 16px;
+        background-color: #4285F4;
+        color: #ffffff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .message {
+        margin-top: 12px;
+        color: green;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Picklio Settings</h1>
+    <form id="settings-form">
+      <label for="api-key">OpenAI API Key</label>
+      <input type="text" id="api-key" placeholder="sk-..." />
+      <label for="model">Model</label>
+      <select id="model">
+        <option value="gpt-4-turbo">GPT‑4 Turbo</option>
+        <option value="gpt-3.5-turbo">GPT‑3.5 Turbo</option>
+      </select>
+
+      <label for="vision-model">Vision Model</label>
+      <!-- Select which multimodal model to use for image analysis and OCR. GPT‑4o is the default replacement for deprecated vision preview models【856385812041945†L873-L885】. -->
+      <select id="vision-model">
+        <option value="gpt-4o">GPT‑4o (Recommended)</option>
+        <option value="gpt-4o-mini">GPT‑4o Mini</option>
+        <option value="gpt-4-turbo-2024-04-09">GPT‑4 Turbo 2024‑04‑09</option>
+      </select>
+
+      <label for="stealth-mode">Stealth Mode</label>
+      <!-- Checkbox to enable or disable stealth mode. When enabled, answers remain hidden until the user clicks to reveal them. -->
+      <input type="checkbox" id="stealth-mode" />
+      <span style="display:block;font-size:12px;color:#666;margin-top:-4px;margin-bottom:12px;">Hide answers until you click to reveal</span>
+      <button type="submit">Save Settings</button>
+      <div class="message" id="save-message" style="display: none;">Saved!</div>
+    </form>
+    <script src="options.js"></script>
+  </body>
+</html>
