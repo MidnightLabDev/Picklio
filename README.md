@@ -16,6 +16,18 @@ Explain Answer tells you why the correct choice is right.
 
 The goal was simple, make answering from text, screenshots, and multiple choice questions feel instant and clean.
 
+**How to use it:**
+
+1- Add Picklio to your browser.
+2- Open Picklio settings.
+3- Paste your OpenAI API key.
+4- Highlight text or use Quick Snap.
+5- Right click and choose what you need:
+Get Answer
+Hint
+Explain
+OCR
+
 Picklio is especially useful when the question is not easy to copy, when the text sits inside an image, or when you want more than just the final answer.
 
 From idea to working extension, this was all about speed, clarity, and making the workflow feel effortless.
