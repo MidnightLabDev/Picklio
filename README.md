@@ -6,7 +6,7 @@ Built something fun and seriously useful.
 
 Picklio is a browser extension that helps answer questions faster, smarter, and with more control.
 
-<img src="./preview.png" alt="Picklio preview" width="100%" />
+<img src="https://github.com/user-attachments/assets/d3e9aa21-f732-4198-b311-baa58f5b85d7" alt="Picklio preview" width="100%" />
 
 </div>
 
@@ -42,4 +42,4 @@ From idea to working extension, this project was all about speed, clarity, and m
 
 Curious to hear what feature you would add next.
 
-<img width="1536" height="1024" alt="Ask anything, get answers instantly" src="https://github.com/user-attachments/assets/d3e9aa21-f732-4198-b311-baa58f5b85d7" />
+
