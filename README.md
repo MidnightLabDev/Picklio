@@ -1,37 +1,44 @@
+<div align="center">
+
 # Picklio
 
 Built something fun and seriously useful.
 
-Introducing **Picklio**, a browser extension that helps answer questions faster, smarter, and with more control.
+Picklio is a browser extension that helps answer questions faster, smarter, and with more control.
 
-What it does:
+<img src="./preview.png" alt="Picklio preview" width="100%" />
 
-Quick Snap lets you select only the part of the screen you want analyzed.
+</div>
 
-OCR reads text from images and screenshots.
+## What it does
 
-Stealth Mode keeps answers hidden until you choose to reveal them.
+1. **Quick Snap** lets you select only the part of the screen you want analyzed.
+2. **OCR** reads text from images and screenshots.
+3. **Stealth Mode** keeps answers hidden until you choose to reveal them.
+4. **Explain Answer** tells you why the correct choice is right.
 
-Explain Answer tells you why the correct choice is right.
+The goal is simple, make answering from text, images, screenshots, and multiple choice questions feel instant and clean.
 
-The goal was simple, make answering from text, screenshots, and multiple choice questions feel instant and clean.
+## How to use it
 
-**How to use it:**
+1. Add Picklio to your browser.
+2. Open Picklio settings.
+3. Paste your OpenAI API key.
+4. Highlight text, or use Quick Snap.
+5. Right click and choose what you need, **Get Answer**, **Hint**, **Explain**, or **OCR**.
 
-1- Add Picklio to your browser.
+## Why it is useful
 
-2- Open Picklio settings.
+Picklio is especially useful when:
 
-3- Paste your OpenAI API key.
+1. The question is not easy to copy.
+2. The text sits inside an image.
+3. You want more than just the final answer.
+4. You want a faster workflow inside the browser.
 
-4- Highlight text or use Quick Snap.
+## From idea to extension
 
-5- Right click and choose what you need:
-Get Answer - Hint - Explain - OCR
-
-Picklio is especially useful when the question is not easy to copy, when the text sits inside an image, or when you want more than just the final answer.
-
-From idea to working extension, this was all about speed, clarity, and making the workflow feel effortless.
+From idea to working extension, this project was all about speed, clarity, and making the workflow feel effortless.
 
 Curious to hear what feature you would add next.
 
