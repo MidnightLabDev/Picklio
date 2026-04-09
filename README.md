@@ -19,9 +19,13 @@ The goal was simple, make answering from text, screenshots, and multiple choice 
 **How to use it:**
 
 1- Add Picklio to your browser.
+
 2- Open Picklio settings.
+
 3- Paste your OpenAI API key.
+
 4- Highlight text or use Quick Snap.
+
 5- Right click and choose what you need:
 Get Answer
 Hint
