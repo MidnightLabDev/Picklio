@@ -27,6 +27,14 @@ The goal is simple, make answering from text, images, screenshots, and multiple 
 4. Highlight text, or use Quick Snap.
 5. Right click and choose what you need, **Get Answer**, **Hint**, **Explain**, or **OCR**.
 
+## How to get your OpenAI API key:
+
+1. Go to https://platform.openai.com
+2. Sign in or create an account
+3. Go to “API Keys” section
+4. Click “Create new secret key”
+5. Copy and paste it into Picklio
+
 ## Why it is useful
 
 Picklio is especially useful when:
