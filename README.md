@@ -19,6 +19,14 @@ Picklio is a browser extension that helps answer questions faster, smarter, and 
 
 The goal is simple, make answering from text, images, screenshots, and multiple choice questions feel instant and clean.
 
+How to install it:
+
+1. Download the Picklio extension files.
+2. Open Chrome and go to: chrome://extensions
+3. Turn on Developer Mode (top right).
+4. Click “Load unpacked”.
+5. Select the Picklio folder.
+
 ## How to use it
 
 1. Add Picklio to your browser.
