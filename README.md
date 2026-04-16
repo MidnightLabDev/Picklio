@@ -48,6 +48,4 @@ Picklio is especially useful when:
 
 From idea to working extension, this project was all about speed, clarity, and making the workflow feel effortless.
 
-Curious to hear what feature you would add next.
-
 
