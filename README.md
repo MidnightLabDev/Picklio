@@ -19,7 +19,7 @@ Picklio is a browser extension that helps answer questions faster, smarter, and 
 
 The goal is simple, make answering from text, images, screenshots, and multiple choice questions feel instant and clean.
 
-## How to install it:
+## How to install it
 
 1. Download the Picklio extension files.
 2. Open Chrome and go to: chrome://extensions
@@ -35,7 +35,7 @@ The goal is simple, make answering from text, images, screenshots, and multiple 
 4. Highlight text, or use Quick Snap.
 5. Right click and choose what you need, **Get Answer**, **Hint**, **Explain**, or **OCR**.
 
-## How to get your OpenAI API key:
+## How to get your OpenAI API key
 
 1. Go to https://platform.openai.com
 2. Sign in or create an account
