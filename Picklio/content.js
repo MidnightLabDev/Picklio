@@ -207,6 +207,9 @@
       // finishes the selection we extract the text and send it back
       // via a quickSnapResult message.
       startQuickSnap({ forceOcr: Boolean(message.forceOcr) });
+      // The background waits for a reply, so confirm the overlay started.
+      sendResponse({ ok: true });
+      return false;
     } else if (message.type === 'cropForOcr') {
       // Handle cropping of a screenshot sent from the background. We draw the
       // selected rectangle on a canvas using the device pixel ratio to

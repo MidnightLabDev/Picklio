@@ -109,6 +109,12 @@ async function ensureContentScript(tabId) {
     await sendTabMessage(tabId, { type: 'picklioPing' });
     return;
   } catch (err) {
+    // After the extension reloads, the old script on the page is cut off but
+    // its loaded flag stays set, which would stop the fresh copy from starting.
+    await chrome.scripting.executeScript({
+      target: { tabId, allFrames: false },
+      func: () => { window.__PICKLIO_CONTENT_SCRIPT_LOADED__ = false; }
+    });
     await chrome.scripting.executeScript({
       target: { tabId, allFrames: false },
       files: ['content.js']
