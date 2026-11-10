@@ -199,7 +199,7 @@
       // Handle cropping of a screenshot sent from the background. We draw the
       // selected rectangle on a canvas using the device pixel ratio to
       // accurately crop high DPI screenshots and then send the cropped
-      // image back to the background script【162919989291563†L186-L192】.
+      // image back to the background script.
       const { dataUri, rect } = message;
       if (!dataUri || !rect) {
         chrome.runtime.sendMessage({ type: 'croppedForOcr', dataUri: '' });

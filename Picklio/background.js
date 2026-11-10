@@ -117,6 +117,15 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
+const DEFAULT_MODEL = 'gpt-6-luna';
+const SUPPORTED_MODELS = ['gpt-6-luna', 'gpt-6-sol'];
+
+// Older saved settings may point at models OpenAI has retired,
+// so anything we no longer offer falls back to the default.
+function currentModel(saved) {
+  return SUPPORTED_MODELS.includes(saved) ? saved : DEFAULT_MODEL;
+}
+
 /**
  * Retrieve stored settings such as the API key and model name.
  * Returns an object with at least the openai_key property when set.
@@ -125,9 +134,8 @@ async function getSettings() {
   const items = await chrome.storage.local.get(['openai_key', 'openai_model', 'openai_vision_model']);
   return {
     key: items.openai_key || '',
-    model: items.openai_model || 'gpt-4-turbo',
-    // Use GPT‑4o as the default vision model since gpt‑4‑vision‑preview is deprecated【856385812041945†L873-L885】.
-    visionModel: items.openai_vision_model || 'gpt-4o'
+    model: currentModel(items.openai_model),
+    visionModel: currentModel(items.openai_vision_model)
   };
 }
 
@@ -225,7 +233,7 @@ async function fetchImageAsDataUri(url) {
  * @param {number} maxTokens Maximum number of tokens for the response.
  * @returns {Promise<string>} The assistant’s reply.
  */
-async function callChatCompletion(key, model, messages, maxTokens = 500) {
+async function callChatCompletion(key, model, messages, maxTokens = 2000) {
   const url = 'https://api.openai.com/v1/chat/completions';
   const res = await fetch(url, {
     method: 'POST',
@@ -233,7 +241,12 @@ async function callChatCompletion(key, model, messages, maxTokens = 500) {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${key}`
     },
-    body: JSON.stringify({ model, messages, max_tokens: maxTokens, temperature: 0.2 })
+    body: JSON.stringify({
+      model,
+      messages,
+      max_completion_tokens: maxTokens,
+      reasoning_effort: 'low'
+    })
   });
   if (!res.ok) {
     const err = await res.text();
@@ -245,13 +258,13 @@ async function callChatCompletion(key, model, messages, maxTokens = 500) {
 }
 
 /**
- * Perform a Vision Scan on an image by calling the GPT‑4 vision model.
+ * Perform a Vision Scan on an image with the selected vision model.
  *
  * @param {string} key API key.
  * @param {string} dataUri Data URI for the image.
  * @returns {Promise<string>} Description or answer produced by the vision model.
  */
-async function performVisionScan(key, dataUri, model = 'gpt-4o') {
+async function performVisionScan(key, dataUri, model = DEFAULT_MODEL) {
   const messages = [
     {
       role: 'user',
@@ -261,18 +274,18 @@ async function performVisionScan(key, dataUri, model = 'gpt-4o') {
       ]
     }
   ];
-  return callChatCompletion(key, model, messages, 800);
+  return callChatCompletion(key, model, messages, 2000);
 }
 
 /**
- * Perform OCR on an image by calling the GPT‑4 vision model. The model is instructed
+ * Perform OCR on an image with the selected vision model. The model is instructed
  * to extract all textual content from the provided image and return it verbatim.
  *
  * @param {string} key API key.
  * @param {string} dataUri Data URI for the image.
  * @returns {Promise<string>} The extracted text.
  */
-async function performOCR(key, dataUri, model = 'gpt-4o') {
+async function performOCR(key, dataUri, model = DEFAULT_MODEL) {
   const messages = [
     {
       role: 'user',
@@ -282,7 +295,7 @@ async function performOCR(key, dataUri, model = 'gpt-4o') {
       ]
     }
   ];
-  return callChatCompletion(key, model, messages, 800);
+  return callChatCompletion(key, model, messages, 2000);
 }
 
 /**
@@ -299,7 +312,7 @@ async function handleTextRequest(key, model, mode, text) {
     { role: 'system', content: 'You are a helpful study assistant.' },
     { role: 'user', content: prompt }
   ];
-  return callChatCompletion(key, model, messages, 500);
+  return callChatCompletion(key, model, messages, 2000);
 }
 
 // Listen for context menu clicks
@@ -314,7 +327,6 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     // If the Vision Scan was selected, handle image processing.
     if (info.menuItemId === MENU_IDS.VISION && info.srcUrl) {
       const dataUri = await fetchImageAsDataUri(info.srcUrl);
-      // Pass the selected vision model; gpt‑4o is used as default replacement for the deprecated vision preview【856385812041945†L873-L885】.
       const result = await performVisionScan(settings.key, dataUri, settings.visionModel);
       chrome.tabs.sendMessage(tab.id, { type: 'result', result, mode: MENU_IDS.VISION });
       return;
@@ -335,10 +347,8 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     // handleTextRequest call will be triggered in the message listener
     // below once the user finishes the selection.
     if (info.menuItemId === MENU_IDS.QUICK) {
-      // Choose a faster model when possible. If the user’s chosen
-      // model already references 3.5 we reuse it; otherwise we use
-      // gpt-3.5-turbo for speed.
-      const quickModel = settings.model && settings.model.toLowerCase().includes('3.5') ? settings.model : 'gpt-3.5-turbo';
+      // Quick Snap always uses the fast default model.
+      const quickModel = DEFAULT_MODEL;
       pendingQuickSnap = { tabId: tab.id, key: settings.key, model: quickModel, visionModel: settings.visionModel };
       // Instruct the content script to show the snipping overlay.
       chrome.tabs.sendMessage(tab.id, { type: 'startQuickSnap' });

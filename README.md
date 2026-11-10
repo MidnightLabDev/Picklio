@@ -31,7 +31,7 @@ The goal is simple, make answering from text, images, screenshots, and multiple 
 
 1. Add Picklio to your browser.
 2. Open Picklio settings.
-3. Paste your OpenAI API key.
+3. Paste your OpenAI API key, and pick a model: GPT-6 Luna (default, fast and cheapest) or GPT-6 Sol (smartest).
 4. Highlight text, or use Quick Snap.
 5. Right click and choose what you need, **Get Answer**, **Hint**, **Explain**, or **OCR**.
 

@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "Picklio",
-  "version": "1.0",
-  "description": "Picklio is a study assistant that provides answers, hints, pointers, vision scanning, quick snipping and OCR for images and screenshots.
-By Mayas Ötegen",
+  "version": "1.1",
+  "author": "Mayas Ötegen",
+  "description": "Study assistant: answers, hints, explanations, Quick Snap and OCR for text, images and screenshots.",
   "permissions": [
     "contextMenus",
     "storage",

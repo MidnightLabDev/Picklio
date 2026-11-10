@@ -14,15 +14,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   const messageEl = document.getElementById('save-message');
 
   // Load existing settings. We include the vision model so users can select a
-  // multimodal engine such as GPT‑4o for OCR and vision tasks.
+  // multimodal model for OCR and vision tasks.
   const items = await chrome.storage.local.get(['openai_key', 'openai_model', 'openai_vision_model', 'stealth_mode']);
   if (items.openai_key) {
     apiKeyInput.value = items.openai_key;
   }
-  if (items.openai_model) {
+  // Retired models from older versions are not in the list, so keep the default.
+  const offered = (select, value) => [...select.options].some((o) => o.value === value);
+  if (offered(modelSelect, items.openai_model)) {
     modelSelect.value = items.openai_model;
   }
-  if (items.openai_vision_model) {
+  if (offered(visionSelect, items.openai_vision_model)) {
     visionSelect.value = items.openai_vision_model;
   }
   if (typeof items.stealth_mode !== 'undefined') {
