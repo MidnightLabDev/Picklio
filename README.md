@@ -6,7 +6,7 @@ Built something fun and seriously useful.
 
 Picklio is a browser extension that helps answer questions faster, smarter, and with more control.
 
-<img src="https://github.com/user-attachments/assets/d3e9aa21-f732-4198-b311-baa58f5b85d7" alt="Picklio preview" width="100%" />
+<img src="assets/picklio-preview.png" alt="Picklio preview" width="100%" />
 
 </div>
 
