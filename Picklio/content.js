@@ -9,6 +9,13 @@
 /* global chrome */
 
 (() => {
+  // Avoid duplicate listeners if the background script injects this file after
+  // the static content script has already loaded.
+  if (window.__PICKLIO_CONTENT_SCRIPT_LOADED__) {
+    return;
+  }
+  window.__PICKLIO_CONTENT_SCRIPT_LOADED__ = true;
+
   const PANEL_ID = 'picklio-panel';
 
   // Track whether stealth mode is enabled. This flag controls whether
@@ -170,6 +177,11 @@
 
   // Listen for messages from the background script
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === 'picklioPing') {
+      sendResponse({ ok: true });
+      return true;
+    }
+
     if (message.type === 'result') {
       updatePanel(message.result, message.mode);
     } else if (message.type === 'getClickedText') {
@@ -194,7 +206,7 @@
       // mouse events to draw a selection rectangle. Once the user
       // finishes the selection we extract the text and send it back
       // via a quickSnapResult message.
-      startQuickSnap();
+      startQuickSnap({ forceOcr: Boolean(message.forceOcr) });
     } else if (message.type === 'cropForOcr') {
       // Handle cropping of a screenshot sent from the background. We draw the
       // selected rectangle on a canvas using the device pixel ratio to
@@ -245,21 +257,22 @@
    * released the selected region’s text is extracted and sent to the
    * background script.
    */
-  function startQuickSnap() {
+  function startQuickSnap(options = {}) {
     // Prevent multiple overlays
     if (document.getElementById('quick-snap-overlay')) {
       return;
     }
     const overlay = document.createElement('div');
     overlay.id = 'quick-snap-overlay';
-    overlay.style.position = 'fixed';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
-    overlay.style.width = '100vw';
-    overlay.style.height = '100vh';
-    overlay.style.zIndex = '2147483646';
-    overlay.style.cursor = 'crosshair';
-    overlay.style.backgroundColor = 'rgba(0,0,0,0.1)';
+    overlay.style.setProperty('position', 'fixed', 'important');
+    overlay.style.setProperty('inset', '0', 'important');
+    overlay.style.setProperty('width', '100vw', 'important');
+    overlay.style.setProperty('height', '100vh', 'important');
+    overlay.style.setProperty('z-index', '2147483647', 'important');
+    overlay.style.setProperty('cursor', 'crosshair', 'important');
+    overlay.style.setProperty('background-color', 'rgba(0,0,0,0.10)', 'important');
+    overlay.style.setProperty('pointer-events', 'auto', 'important');
+    overlay.style.setProperty('user-select', 'none', 'important');
 
     const selRect = document.createElement('div');
     selRect.style.position = 'absolute';
@@ -313,8 +326,9 @@
       const y1 = Math.min(startY, endY);
       const x2 = Math.max(startX, endX);
       const y2 = Math.max(startY, endY);
-      // Extract text from the selected rectangle
-      const text = extractTextFromRect(x1, y1, x2, y2);
+      // Extract text from the selected rectangle. In toolbar mode we force OCR
+      // so the result is based on the screenshot crop rather than page DOM text.
+      const text = options.forceOcr ? '' : extractTextFromRect(x1, y1, x2, y2);
       // Remove overlay
       overlay.remove();
       // Send the captured text back to the background script
@@ -339,7 +353,9 @@
 
     overlay.addEventListener('mousedown', onMouseDown);
     document.addEventListener('keydown', onKeyDown, true);
-    document.body.appendChild(overlay);
+    // Append to documentElement instead of body to reduce the chance of site CSS
+    // stacking contexts placing the overlay behind the app UI.
+    document.documentElement.appendChild(overlay);
   }
 
   /**

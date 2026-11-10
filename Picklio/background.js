@@ -13,6 +13,10 @@
  * automatically. See options.html for details on storing the API key.
  */
 
+const DEFAULT_MODEL = 'gpt-6-luna';
+const SUPPORTED_MODELS = ['gpt-6-luna', 'gpt-6-sol'];
+
+
 /* global chrome */
 
 // Identifiers for context menu items
@@ -68,6 +72,76 @@ function sendMessageWithResponse(tabId, message) {
   });
 }
 
+/**
+ * Send a message to a tab and reject when the content script is not available.
+ * Sites that block right click often also use unusual iframe or app shells, so
+ * this helper lets us detect missing content scripts and inject Picklio on demand.
+ *
+ * @param {number} tabId The active tab ID.
+ * @param {any} message Message payload.
+ * @returns {Promise<any>} The response from the content script.
+ */
+function sendTabMessage(tabId, message) {
+  return new Promise((resolve, reject) => {
+    try {
+      chrome.tabs.sendMessage(tabId, message, { frameId: 0 }, (response) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
+        }
+        resolve(response || {});
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+/**
+ * Make sure the content script is present in the active tab. When it is missing,
+ * inject it programmatically. This makes the toolbar Quick Snap path more robust
+ * on pages that disable right click or load their content dynamically.
+ *
+ * @param {number} tabId The active tab ID.
+ */
+async function ensureContentScript(tabId) {
+  try {
+    await sendTabMessage(tabId, { type: 'picklioPing' });
+    return;
+  } catch (err) {
+    await chrome.scripting.executeScript({
+      target: { tabId, allFrames: false },
+      files: ['content.js']
+    });
+  }
+}
+
+/**
+ * Start Quick Snap from any entry point, including the context menu and the
+ * extension toolbar popup. This centralizes the setup of the pending request so
+ * the background script can handle the result after the user draws a selection.
+ *
+ * @param {number} tabId The active tab ID.
+ * @param {object} settings Stored OpenAI settings.
+ */
+async function startQuickSnapForTab(tabId, settings, options = {}) {
+  const quickModel = DEFAULT_MODEL;
+  pendingQuickSnap = {
+    tabId,
+    key: settings.key,
+    model: quickModel,
+    visionModel: settings.visionModel
+  };
+  await ensureContentScript(tabId);
+  await sendTabMessage(tabId, {
+    type: 'startQuickSnap',
+    // When launched from the toolbar, force screenshot OCR mode so Picklio does
+    // not depend on page text selection or DOM access. This is designed for
+    // websites that disable right click or use protected text layers.
+    forceOcr: Boolean(options.forceOcr)
+  });
+}
+
 // On install create context menus
 chrome.runtime.onInstalled.addListener(() => {
   // Remove any old menus to avoid duplicates
@@ -116,9 +190,6 @@ chrome.runtime.onInstalled.addListener(() => {
     });
   });
 });
-
-const DEFAULT_MODEL = 'gpt-6-luna';
-const SUPPORTED_MODELS = ['gpt-6-luna', 'gpt-6-sol'];
 
 // Older saved settings may point at models OpenAI has retired,
 // so anything we no longer offer falls back to the default.
@@ -347,11 +418,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     // handleTextRequest call will be triggered in the message listener
     // below once the user finishes the selection.
     if (info.menuItemId === MENU_IDS.QUICK) {
-      // Quick Snap always uses the fast default model.
-      const quickModel = DEFAULT_MODEL;
-      pendingQuickSnap = { tabId: tab.id, key: settings.key, model: quickModel, visionModel: settings.visionModel };
-      // Instruct the content script to show the snipping overlay.
-      chrome.tabs.sendMessage(tab.id, { type: 'startQuickSnap' });
+      await startQuickSnapForTab(tab.id, settings, { forceOcr: false });
       return;
     }
 
@@ -371,6 +438,28 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 // drawing a selection via the snipping overlay. We then call the
 // OpenAI API to obtain an answer based on the selected text.
 chrome.runtime.onMessage.addListener((message, sender) => {
+  // Allow the toolbar popup to start Quick Snap. This helps on websites that
+  // disable the browser right click menu.
+  if (message && message.type === 'toolbarQuickSnap') {
+    (async () => {
+      try {
+        const settings = await getSettings();
+        if (!settings.key) {
+          chrome.runtime.openOptionsPage();
+          return;
+        }
+        const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+        const tab = tabs && tabs[0];
+        if (tab && tab.id) {
+          await startQuickSnapForTab(tab.id, settings, { forceOcr: true });
+        }
+      } catch (err) {
+        // Nothing else to do here. The user can retry from the toolbar.
+      }
+    })();
+    return;
+  }
+
   if (message && message.type === 'quickSnapResult') {
     // Clear the pending request first to avoid duplicate processing.
     const snap = pendingQuickSnap;
